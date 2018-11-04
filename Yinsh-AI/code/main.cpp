@@ -20,16 +20,16 @@ inline bool GameOver(){
 int main(){
 	int player_id, time_limit;
 	int n,m,k,l;
-	cin >> player_id >> n >> time_limit;
+	cin >> player_id >> n >> time_limit >> k;
 
 	begin1 = clock();
 	timeGiven = (double)time_limit;
 	time_taken_by_oppo = 0;
 
-	m = 5; k = 5; l = 3;
+	m = 5; l = 3;
 	board::n = n; // size of the board i.e the number of hexagons
-	board::m = 5; // number of rings for each player
-	board::k = 5; // the number of consecutive markers to remove
+	board::m = n; // number of rings for each player
+	board::k = k; // the number of consecutive markers to remove
 	board::l = 3; // for winning remove l rings before the opponent does
 
 	player_id--;
