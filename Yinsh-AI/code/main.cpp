@@ -18,6 +18,7 @@ inline bool GameOver(){
 }
 
 int main(){
+	srand(time(NULL));
 	int player_id, time_limit;
 	int n,m,k,l;
 	cin >> player_id >> n >> time_limit >> k;
