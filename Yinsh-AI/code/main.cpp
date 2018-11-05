@@ -26,11 +26,11 @@ int main(){
 	timeGiven = (double)time_limit;
 	time_taken_by_oppo = 0;
 
-	m = 5; l = 3;
+	m = n; l = 3;
 	board::n = n; // size of the board i.e the number of hexagons
-	board::m = n; // number of rings for each player
+	board::m = m; // number of rings for each player
 	board::k = k; // the number of consecutive markers to remove
-	board::l = 3; // for winning remove l rings before the opponent does
+	board::l = l; // for winning remove l rings before the opponent does
 
 	player_id--;
 

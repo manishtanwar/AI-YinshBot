@@ -3,6 +3,6 @@
 
 #include "board.h"
 #define ll long long
-ll evalFun(board& B);
+ll evalFun(board& B, int player);
 
 #endif

@@ -172,7 +172,7 @@ pii whereToPlaceRing(board& B){
 
 
 ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
-	if(depth == 0 || GameOver(B)) return evalFun(B);
+	if(depth == 0 || GameOver(B)) return evalFun(B,player);
 
 	// *********************** Remove Ring Step **************************
 	if(removeRing){
