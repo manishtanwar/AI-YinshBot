@@ -60,6 +60,8 @@ bool GameOver(board& B){
 	return false;
 }
 
+
+
 ll evalFun(board& B, int player){
 	if(GameOver(B)) return Vfunc(B);
 

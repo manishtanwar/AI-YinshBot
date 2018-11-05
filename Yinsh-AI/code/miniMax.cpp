@@ -58,9 +58,9 @@ int determineDepth(board& B){
 pair<pii,pii> SelectMove1MoveRing(board& B){
 	// Max Node
 	int player = 0;
-	ll Min = LLONG_MIN;
-	ll Max = LLONG_MAX;
-	ll ansScore = Min;
+	double Min = -INF;
+	double Max = INF;
+	double ansScore = Min;
 	int depth = determineDepth(B);
 	pair<pii,pii> ans;
 
@@ -75,14 +75,14 @@ pair<pii,pii> SelectMove1MoveRing(board& B){
 
 			// checking if a marker seq can be removed
 			if(markerSeqLoop.size() == 0){
-				ll tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
+				double tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
 				if(ansScore < tmp){
 					ansScore = tmp;
 					ans = {from,to};
 				}
 			}
 			else{
-				ll tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
+				double tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
 				if(ansScore < tmp){
 					ansScore = tmp;
 					ans = {from,to};
@@ -97,9 +97,9 @@ pair<pii,pii> SelectMove1MoveRing(board& B){
 pii SelectMove2RemoveRing(board& B){
 	// Max Node
 	int player = 0;
-	ll Min = LLONG_MIN;
-	ll Max = LLONG_MAX;
-	ll ansScore = Min;
+	double Min = -INF;
+	double Max = INF;
+	double ansScore = Min;
 	int depth = determineDepth(B);
 	pii ans;
 
@@ -110,14 +110,14 @@ pii SelectMove2RemoveRing(board& B){
 		markerSeq = currBoard.generateAllSequences(player);
 		// checking if more seq can be removed
 		if(markerSeq.size() == 0){
-			ll tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
+			double tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
 			if(ansScore < tmp){
 				ansScore = tmp;
 				ans = from;
 			}
 		}
 		else{
-			ll tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
+			double tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
 			if(ansScore < tmp){
 				ansScore = tmp;
 				ans = from;
@@ -130,9 +130,9 @@ pii SelectMove2RemoveRing(board& B){
 pair<pii,pii> SelectMove3RemoveSeq(board& B){
 	// Max Node
 	int player = 0;
-	ll Min = LLONG_MIN;
-	ll Max = LLONG_MAX;
-	ll ansScore = Min;
+	double Min = -INF;
+	double Max = INF;
+	double ansScore = Min;
 	int depth = determineDepth(B);
 	pair<pii,pii> ans;
 
@@ -141,7 +141,7 @@ pair<pii,pii> SelectMove3RemoveSeq(board& B){
 	for(auto z : markerSeq){
 		board currBoard(B);
 		currBoard.removeSequence(player,z.F,z.S);
-		ll tmp = miniMax(currBoard, depth-1, player, ansScore, Max, 1);
+		double tmp = miniMax(currBoard, depth-1, player, ansScore, Max, 1);
 		if(ansScore < tmp){
 			ansScore = tmp;
 			ans = {z.F,z.S};
@@ -171,14 +171,14 @@ pii whereToPlaceRing(board& B){
 }
 
 
-ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
+double miniMax(board& B, int depth, int player, double Min, double Max, bool removeRing){
 	if(depth == 0 || GameOver(B)) return evalFun(B,player);
 
 	// *********************** Remove Ring Step **************************
 	if(removeRing){
 		if(player){
 			// Min Node
-			ll ansScore = Max;
+			double ansScore = Max;
 
 			for(auto z : B.ringsPos[player]){
 				board currBoard(B);
@@ -194,7 +194,7 @@ ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
 		}
 		else{
 			// Max Node
-			ll ansScore = Min;
+			double ansScore = Min;
 
 			for(auto z : B.ringsPos[player]){
 				board currBoard(B);
@@ -217,7 +217,7 @@ ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
 		// *********************** Remove Marker Seq Step **************************
 		if(player){
 			// Min Node
-			ll ansScore = Max;
+			double ansScore = Max;
 
 			for(auto z : markerSeq){
 				board currBoard(B);
@@ -229,7 +229,7 @@ ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
 		}
 		else{
 			// Max Node
-			ll ansScore = Min;
+			double ansScore = Min;
 
 			for(auto z : markerSeq){
 				board currBoard(B);
@@ -244,7 +244,7 @@ ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
 	// *********************** Moving Ring Step **************************
 		if(player){
 			// Min Node
-			ll ansScore = Max;
+			double ansScore = Max;
 
 			for(auto z : B.ringsPos[player]){
 				vector<pii> possibleToPos = B.generateNeighbours(z);
@@ -265,7 +265,7 @@ ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
 		}
 		else{
 			// Max Node
-			ll ansScore = Min;
+			double ansScore = Min;
 
 			for(auto z : B.ringsPos[player]){
 				vector<pii> possibleToPos = B.generateNeighbours(z);
