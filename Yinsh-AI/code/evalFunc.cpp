@@ -1,9 +1,9 @@
 #include<fstream>
 #include "evalFunc.h"
 
-double coeff = ; // coeff for calculating diffr in base case
-double alpha = ; // learning rate in approx q-learning
-int eps = ;   // eps for eps-greedy
+double coeff = 1; // coeff for calculating diffr in base case
+double alpha = 0.04; // learning rate in approx q-learning
+int eps = 80;   // eps for eps-greedy
 vector<double> weight(10,0); //
 
 map<pii,int> scoreTable = { {{3,0},10},{{3,1},9},{{3,2},8},{{2,0},7},{{2,1},6},{{1,0},6},{{2,2},5},{{1,1},5},{{0,0},5},{{0,1},4},{{1,2},4},{{0,2},3},{{2,3},2},{{1,3},1},{{0,3},0},};
@@ -58,7 +58,7 @@ vector<int> markers_seq_on_board(board& B, int player){
 	return count;
 }
 
-bool GameOver(board& B){
+inline bool GameOver(board& B){
 	int a = B.ringsPos[0].size();
 	int b = B.ringsPos[1].size();
 	if(a <= (board::m - board::l) || b <= (board::m - board::l)) return true;
@@ -153,16 +153,30 @@ vector< pair<board, int> > generate_neigh(board B, int player, int removeRing, i
 	return ans;
 }
 
+inline bool greedy_eps_explore(){
+	int random = rand() % 100;
+	return random < eps;
+}
+
+inline void update_weights(double diffr,board& B, int player){
+	vector<int> f = generate_Fi(B,player);
+
+	for(int i=0;i<w.size();i++){
+		weight[i] += alpha * diffr * f[i];
+	}
+}
+
 double evalFun(board& B, int player){
 	if(GameOver(B)) return Vfunc(B);
 
 	pair<board, int> s({B,player}),s1;
 	// state represents B -> board, Player->chance, third->boolean(removeRing), flip->flip variable for generating neighbours correctly
 	vector< pair<board,int> > neighbours_list = generate_neigh(currBoard,player,0,0);
-	assert(generate_neigh.size() > 0);
+	assert(neighbours_list.size() > 0);
 
+	// determing s1
 	if(greedy_eps_explore()){
-		int random = rand() % generate_neigh.size();
+		int random = rand() % neighbours_list.size();
 		s1 = neighbours_list[random];
 	}
 	else{
@@ -170,10 +184,39 @@ double evalFun(board& B, int player){
 		for(auto z : neighbours_list) neighbours_VList.pb(Vfunc(z));
 		double optimal_val = (player) ? -INF : INF;
 		for(int i=0;i < neighbours_VList.size(); i++){
-			auto 
-			if(player && optimal_val < )
+			auto &nv = neighbours_VList[i];
+			auto &ns = neighbours_list[i];
+
+			if((player==1 && optimal_val < nv) || (player==0 && optimal_val > nv)){
+				optimal_val = nv;
+				s1 = ns;
+			}
 		}
 	}
 
+	// is s1 terminating
+	if(GameOver(s1.F)){
+		double diffr = Rfunc(s1) - Rfunc(s) + coeff * Rfunc(s1) - Vfunc(s1);
+		update_weights(diffr,s1.F,s1.S);
+	}
+	else{
+		vector< pair<board,int> > neighbours_s1_list = generate_neigh(s1.F,s1.S,0,0);
+		assert(neighbours_s1_list.size() > 0);
 
+		vector<double> neighbours_VList;
+		for(auto z : neighbours_s1_list) neighbours_VList.pb(Vfunc(z));
+		double optimal_val = (s1.S) ? -INF : INF;
+		for(int i=0;i < neighbours_VList.size(); i++){
+			auto &nv = neighbours_VList[i];
+			auto &ns = neighbours_s1_list[i];
+
+			if((s1.S==1 && optimal_val < nv) || (s1.S==0 && optimal_val > nv)){
+				optimal_val = nv;
+			}
+		}
+
+		double diffr = Rfunc(s1) - Rfunc(s) + optimal_val - Vfunc(s1);
+		update_weights(diffr,s1.F,s1.S);
+	}
+	return Vfunc(B);
 }
