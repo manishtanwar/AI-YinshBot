@@ -1,11 +1,11 @@
 #include "miniMax.h"
 #include "evalFunc.h"
 #include<limits.h>
-#include<fstream>
+// #include<fstream>
 #include<algorithm>
 // ofstream outFile1("output_eva.txt");
 
-ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing);
+double miniMax(board& B, int depth, int player, double Min, double Max, bool removeRing);
 
 double timeGiven;
 double time_taken_by_oppo;

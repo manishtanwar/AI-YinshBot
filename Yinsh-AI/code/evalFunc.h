@@ -3,7 +3,7 @@
 
 #include "board.h"
 // #define ll long long
-double INF = (1e18);
+#define INF (1e18)
 double evalFun(board& B, int player);
 
 #endif

@@ -1,4 +1,3 @@
-#include <iostream>
 #include "board.h"
 #include "util.h"
 #include "miniMax.h"

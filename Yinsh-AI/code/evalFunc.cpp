@@ -1,4 +1,5 @@
-#include<fstream>
+// #include<fstream>
+#include <cassert>
 #include "evalFunc.h"
 
 double coeff = 1; // coeff for calculating diffr in base case
@@ -82,7 +83,7 @@ vector<int> generate_Fi(board& B, int player){
 	apna_on_board = markers_seq_on_board(B,0);
 	uska_on_board = markers_seq_on_board(B,1);
 
-	vecor<int> ans;
+	vector<int> ans;
 	for(int i=2; i < apna_near_rings.size(); i++) ans.pb(apna_near_rings[i]);
 	for(int i=2; i < uska_near_rings.size(); i++) ans.pb(uska_near_rings[i]);
 
@@ -98,14 +99,14 @@ vector<int> generate_Fi(board& B, int player){
 double Vfunc(board& B, int player){
 	double ans = 0;
 	vector<int> f = generate_Fi(B,player);
-	for(int i=0;i<w.size();i++){
+	for(int i=0;i<weight.size();i++){
 		ans += weight[i] * (double) f[i];
 	}
 	return ans;
 }
 
 vector< pair<board, int> > generate_neigh(board B, int player, int removeRing, int flip){
-	vector<<board,int>> ans;
+	vector<pair<board,int>> ans;
 	if(GameOver(B)){
 		ans.pb({B,player}); return ans;
 	}
@@ -161,17 +162,17 @@ inline bool greedy_eps_explore(){
 inline void update_weights(double diffr,board& B, int player){
 	vector<int> f = generate_Fi(B,player);
 
-	for(int i=0;i<w.size();i++){
+	for(int i=0;i<weight.size();i++){
 		weight[i] += alpha * diffr * f[i];
 	}
 }
 
 double evalFun(board& B, int player){
-	if(GameOver(B)) return Vfunc(B);
+	if(GameOver(B)) return Vfunc(B,player);
 
 	pair<board, int> s({B,player}),s1;
 	// state represents B -> board, Player->chance, third->boolean(removeRing), flip->flip variable for generating neighbours correctly
-	vector< pair<board,int> > neighbours_list = generate_neigh(currBoard,player,0,0);
+	vector< pair<board,int> > neighbours_list = generate_neigh(B,player,0,0);
 	assert(neighbours_list.size() > 0);
 
 	// determing s1
@@ -181,7 +182,7 @@ double evalFun(board& B, int player){
 	}
 	else{
 		vector<double> neighbours_VList;
-		for(auto z : neighbours_list) neighbours_VList.pb(Vfunc(z));
+		for(auto z : neighbours_list) neighbours_VList.pb(Vfunc(z.F,z.S));
 		double optimal_val = (player) ? -INF : INF;
 		for(int i=0;i < neighbours_VList.size(); i++){
 			auto &nv = neighbours_VList[i];
@@ -196,7 +197,7 @@ double evalFun(board& B, int player){
 
 	// is s1 terminating
 	if(GameOver(s1.F)){
-		double diffr = Rfunc(s1) - Rfunc(s) + coeff * Rfunc(s1) - Vfunc(s1);
+		double diffr = Rfunc(s1.F) - Rfunc(s.F) + coeff * Rfunc(s1.F) - Vfunc(s1.F,s1.S);
 		update_weights(diffr,s1.F,s1.S);
 	}
 	else{
@@ -204,7 +205,7 @@ double evalFun(board& B, int player){
 		assert(neighbours_s1_list.size() > 0);
 
 		vector<double> neighbours_VList;
-		for(auto z : neighbours_s1_list) neighbours_VList.pb(Vfunc(z));
+		for(auto z : neighbours_s1_list) neighbours_VList.pb(Vfunc(z.F,z.S));
 		double optimal_val = (s1.S) ? -INF : INF;
 		for(int i=0;i < neighbours_VList.size(); i++){
 			auto &nv = neighbours_VList[i];
@@ -215,8 +216,8 @@ double evalFun(board& B, int player){
 			}
 		}
 
-		double diffr = Rfunc(s1) - Rfunc(s) + optimal_val - Vfunc(s1);
+		double diffr = Rfunc(s1.F) - Rfunc(s.F) + optimal_val - Vfunc(s1.F,s1.S);
 		update_weights(diffr,s1.F,s1.S);
 	}
-	return Vfunc(B);
+	return Vfunc(B,player);
 }
