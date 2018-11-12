@@ -1,6 +1,7 @@
 #include "board.h"
 #include "util.h"
 #include "miniMax.h"
+#include "evalFunc.h"
 #include <ctime>
 
 using namespace std;
@@ -17,6 +18,7 @@ inline bool GameOver(){
 }
 
 int main(){
+	steps_taken = 0;
 	srand(time(NULL));
 	int player_id, time_limit;
 	int n,m,k,l;
@@ -38,6 +40,7 @@ int main(){
 	rings_rem[1] = l;
 	
 	board B;
+	load_weight();
 
 	for(int i=0; i < 2*m; i++){
 		placeTheRing(player_id, B);
@@ -46,7 +49,7 @@ int main(){
 
 	while(!TimeOut() && !GameOver()){
 		if(player_id) PCMove(B, rings_rem);
-		else ApnaMove(B, rings_rem);
+		else ApnaMove(B, rings_rem), steps_taken++;
 		player_id = 1 - player_id;
 	}
 	return 0;

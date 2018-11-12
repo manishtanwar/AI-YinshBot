@@ -5,8 +5,9 @@
 #include<algorithm>
 // ofstream outFile1("output_eva.txt");
 
-double miniMax(board& B, int depth, int player, double Min, double Max, bool removeRing);
+ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing);
 
+int steps_taken;
 double timeGiven;
 double time_taken_by_oppo;
 
@@ -23,72 +24,79 @@ int determineDepth(board& B){
 	double elapsedTime = double(clock() - begin1) / CLOCKS_PER_SEC;
 	double remTime = timeGiven - elapsedTime - time_taken_by_oppo - 2;
 
-	// training depth
-	// outFile1 << avgFac << endl;
-	if(remTime < 2){
-		return 0;
-	}
-	else if(remTime < 20){
-		return 1;
-	}
-	else if(remTime < 30){
-		if(avgFac < 50) return 3;
-		return 3;
-	}
-	else if(remTime < 60){
-		if(avgFac < 40) return 3;
-		if(avgFac < 60) return 3;
-		return 3;
-	}
-	else if(remTime < 119.8){
-		if(avgFac < 40) return 3;
-		if(avgFac < 60) return 3;
-		return 3;
-	}
-	else{
-		if(avgFac < 45) return 3;
-		return 3;
-	}
+	if(5 == board::n){
+		// 2 minutes
+		// outFile1 << avgFac << endl;
+		if(steps_taken < 6) return 4;
 
-	// original depth
-	// outFile1 << avgFac << endl;
-	if(remTime < 2){
-		return 0;
+		if(remTime < 2) 		return 0;
+		else if(remTime < 5) 	return 1;
+		else if(remTime < 8)	return 2;
+		else if(remTime < 20)	return 4;
+		else if(remTime < 30){
+			if(avgFac < 50) return 5;
+			return 4;
+		}
+		else if(remTime < 60){
+			if(avgFac < 40) return 5;
+			if(avgFac < 60) return 5;
+			return 5;
+		}
+		else if(remTime < 100){
+			if(avgFac < 40) return 5;
+			if(avgFac < 60) return 5;
+			return 5;
+		}
+		else return 5;
 	}
-	else if(remTime < 20){
-		return 1;
-	}
-	else if(remTime < 30){
-		if(avgFac < 50) return 5;
-		return 4;
-	}
-	else if(remTime < 60){
-		if(avgFac < 40) return 5;
-		if(avgFac < 60) return 5;
-		return 5;
-	}
-	else if(remTime < 119.8){
-		if(avgFac < 40) return 5;
-		if(avgFac < 60) return 5;
-		return 5;
+	else if(board::n == 6 && board::k == 5){
+		// 2.5 minutes
+		// cerr << avgFac << endl;
+		if(steps_taken < 8) return 4;
+
+		if(remTime < 2) 		return 0;
+		else if(remTime < 5) 	return 1;
+		else if(remTime < 8)	return 2;
+		else if(remTime < 50)	return 4;
+		else if(remTime < 70){
+			if(avgFac < 70) return 5;
+			return 4;
+		}
+		else{
+			if(avgFac < 90) return 5;
+			return 4;
+		}
 	}
 	else{
-		if(avgFac < 45) return 5;
-		return 4;
+		// 3 minute
+		// cerr << avgFac << endl;
+		if(steps_taken < 8) return 4;
+
+		if(remTime < 2) 		return 0;
+		else if(remTime < 5) 	return 1;
+		else if(remTime < 8)	return 2;
+		else if(remTime < 30)	return 4;
+		else if(remTime < 50){
+			if(avgFac < 70) return 5;
+			return 4;
+		}
+		else if(remTime < 70){
+			if(avgFac < 80) return 5;
+			return 4;
+		}
+		else{
+			if(avgFac < 88) return 5;
+			return 4;
+		}
 	}
-	// if(avgFac < 35) return 5;
-	// if(avgFac < 50) return 5;
-	// if(avgFac < 60) return 4;
-	// if(avgFac < 70) return 4;
-	// return 3;
 }
 // 1. moving the ring
 pair<pii,pii> SelectMove1MoveRing(board& B){
 	// Max Node
 	int player = 0;
-	double Min = -INF;
-	double Max = INF;
-	double ansScore = Min;
+	ll Min = -INF;
+	ll Max = INF;
+	ll ansScore = Min;
 	int depth = determineDepth(B);
 	pair<pii,pii> ans;
 
@@ -103,14 +111,14 @@ pair<pii,pii> SelectMove1MoveRing(board& B){
 
 			// checking if a marker seq can be removed
 			if(markerSeqLoop.size() == 0){
-				double tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
+				ll tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
 				if(ansScore < tmp){
 					ansScore = tmp;
 					ans = {from,to};
 				}
 			}
 			else{
-				double tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
+				ll tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
 				if(ansScore < tmp){
 					ansScore = tmp;
 					ans = {from,to};
@@ -125,9 +133,9 @@ pair<pii,pii> SelectMove1MoveRing(board& B){
 pii SelectMove2RemoveRing(board& B){
 	// Max Node
 	int player = 0;
-	double Min = -INF;
-	double Max = INF;
-	double ansScore = Min;
+	ll Min = -INF;
+	ll Max = INF;
+	ll ansScore = Min;
 	int depth = determineDepth(B);
 	pii ans;
 
@@ -138,14 +146,14 @@ pii SelectMove2RemoveRing(board& B){
 		markerSeq = currBoard.generateAllSequences(player);
 		// checking if more seq can be removed
 		if(markerSeq.size() == 0){
-			double tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
+			ll tmp = miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0);
 			if(ansScore < tmp){
 				ansScore = tmp;
 				ans = from;
 			}
 		}
 		else{
-			double tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
+			ll tmp = miniMax(currBoard, depth, player, ansScore, Max, 0);
 			if(ansScore < tmp){
 				ansScore = tmp;
 				ans = from;
@@ -158,9 +166,9 @@ pii SelectMove2RemoveRing(board& B){
 pair<pii,pii> SelectMove3RemoveSeq(board& B){
 	// Max Node
 	int player = 0;
-	double Min = -INF;
-	double Max = INF;
-	double ansScore = Min;
+	ll Min = -INF;
+	ll Max = INF;
+	ll ansScore = Min;
 	int depth = determineDepth(B);
 	pair<pii,pii> ans;
 
@@ -169,7 +177,7 @@ pair<pii,pii> SelectMove3RemoveSeq(board& B){
 	for(auto z : markerSeq){
 		board currBoard(B);
 		currBoard.removeSequence(player,z.F,z.S);
-		double tmp = miniMax(currBoard, depth-1, player, ansScore, Max, 1);
+		ll tmp = miniMax(currBoard, depth-1, player, ansScore, Max, 1);
 		if(ansScore < tmp){
 			ansScore = tmp;
 			ans = {z.F,z.S};
@@ -198,15 +206,20 @@ pii whereToPlaceRing(board& B){
 	}
 }
 
+inline ll GameOverScore(board& B){
+	if(B.ringsPos[0].size() == board::m - board::l) return (INF/2 - (((ll)board::m - (ll)B.ringsPos[1].size()) * (ll) (1e5)));
+	return (-INF/2 + (((ll)board::m - (ll)B.ringsPos[0].size()) * (ll) (1e5)));
+}
 
-double miniMax(board& B, int depth, int player, double Min, double Max, bool removeRing){
+ll miniMax(board& B, int depth, int player, ll Min, ll Max, bool removeRing){
+	if(GameOver(B)) return GameOverScore(B);
 	if(depth == 0 || GameOver(B)) return evalFun(B,player);
 
 	// *********************** Remove Ring Step **************************
 	if(removeRing){
 		if(player){
 			// Min Node
-			double ansScore = Max;
+			ll ansScore = Max;
 
 			for(auto z : B.ringsPos[player]){
 				board currBoard(B);
@@ -215,14 +228,14 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 				markerSeq = currBoard.generateAllSequences(player);
 				// checking if more seq can be removed
 				if(markerSeq.size() == 0)	ansScore = min(ansScore, miniMax(currBoard, depth-1, 1-player, Min, ansScore, 0));
-				else	ansScore = min(ansScore, miniMax(currBoard, depth, player, Min, ansScore, 0));
+				else	ansScore = min(ansScore, miniMax(currBoard, depth-1, player, Min, ansScore, 0));
 				if(ansScore <= Min) return Min;
 			}
 			return ansScore;
 		}
 		else{
 			// Max Node
-			double ansScore = Min;
+			ll ansScore = Min;
 
 			for(auto z : B.ringsPos[player]){
 				board currBoard(B);
@@ -231,7 +244,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 				markerSeq = currBoard.generateAllSequences(player);
 				// checking if more seq can be removed
 				if(markerSeq.size() == 0)	ansScore = max(ansScore, miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0));
-				else ansScore = max(ansScore, miniMax(currBoard, depth, player, ansScore, Max, 0));
+				else ansScore = max(ansScore, miniMax(currBoard, depth-1, player, ansScore, Max, 0));
 				if(ansScore >= Max) return Max;
 			}
 			return ansScore;
@@ -245,7 +258,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 		// *********************** Remove Marker Seq Step **************************
 		if(player){
 			// Min Node
-			double ansScore = Max;
+			ll ansScore = Max;
 
 			for(auto z : markerSeq){
 				board currBoard(B);
@@ -257,7 +270,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 		}
 		else{
 			// Max Node
-			double ansScore = Min;
+			ll ansScore = Min;
 
 			for(auto z : markerSeq){
 				board currBoard(B);
@@ -272,7 +285,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 	// *********************** Moving Ring Step **************************
 		if(player){
 			// Min Node
-			double ansScore = Max;
+			ll ansScore = Max;
 
 			for(auto z : B.ringsPos[player]){
 				vector<pii> possibleToPos = B.generateNeighbours(z);
@@ -285,7 +298,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 
 					// checking if a marker seq can be removed
 					if(markerSeqLoop.size() == 0)	ansScore = min(ansScore, miniMax(currBoard, depth-1, 1-player, Min, ansScore, 0));
-					else ansScore = min(ansScore, miniMax(currBoard, depth, player, Min, ansScore, 0));
+					else ansScore = min(ansScore, miniMax(currBoard, depth-1, player, Min, ansScore, 0));
 					if(ansScore <= Min) return Min;
 				}
 			}
@@ -293,7 +306,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 		}
 		else{
 			// Max Node
-			double ansScore = Min;
+			ll ansScore = Min;
 
 			for(auto z : B.ringsPos[player]){
 				vector<pii> possibleToPos = B.generateNeighbours(z);
@@ -306,7 +319,7 @@ double miniMax(board& B, int depth, int player, double Min, double Max, bool rem
 
 					// checking if a marker seq can be removed
 					if(markerSeqLoop.size() == 0)	ansScore = max(ansScore, miniMax(currBoard, depth-1, 1-player, ansScore, Max, 0));
-					else ansScore = max(ansScore, miniMax(currBoard, depth, player, ansScore, Max, 0));
+					else ansScore = max(ansScore, miniMax(currBoard, depth-1, player, ansScore, Max, 0));
 					if(ansScore >= Max) return Max;
 				}
 			}
