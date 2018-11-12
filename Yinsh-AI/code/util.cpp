@@ -25,7 +25,7 @@ void placeTheRing(int p, board& B){
 		pii at1 = board::convertCoordinatesBackward(at);
 		cout<<"P "<<at1.F<<' '<<at1.S<<endl;
 		// degub output
-		cerr<<"P "<<at1.F<<' '<<at1.S<<endl;
+		// cerr<<"P "<<at1.F<<' '<<at1.S<<endl;
 	}
 	B.placeRing(p,at);
 }
@@ -158,7 +158,7 @@ void ApnaMove(board& B, int rings_rem[]){
 		outputStr.pop_back(); 
 	 	cout<<outputStr<<endl;
 	 	// degub output
-	 	cerr<<outputStr<<endl;
+	 	// cerr<<outputStr<<endl;
 		return;
 	}
 
@@ -178,5 +178,5 @@ void ApnaMove(board& B, int rings_rem[]){
 	outputStr.pop_back(); 
 	cout<<outputStr<<endl;	
 	// degub output
-	cerr<<outputStr<<endl;
+	// cerr<<outputStr<<endl;
 }

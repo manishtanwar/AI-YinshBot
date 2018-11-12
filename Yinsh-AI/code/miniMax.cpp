@@ -23,6 +23,34 @@ int determineDepth(board& B){
 	double elapsedTime = double(clock() - begin1) / CLOCKS_PER_SEC;
 	double remTime = timeGiven - elapsedTime - time_taken_by_oppo - 2;
 
+	// training depth
+	// outFile1 << avgFac << endl;
+	if(remTime < 2){
+		return 0;
+	}
+	else if(remTime < 20){
+		return 1;
+	}
+	else if(remTime < 30){
+		if(avgFac < 50) return 3;
+		return 3;
+	}
+	else if(remTime < 60){
+		if(avgFac < 40) return 3;
+		if(avgFac < 60) return 3;
+		return 3;
+	}
+	else if(remTime < 119.8){
+		if(avgFac < 40) return 3;
+		if(avgFac < 60) return 3;
+		return 3;
+	}
+	else{
+		if(avgFac < 45) return 3;
+		return 3;
+	}
+
+	// original depth
 	// outFile1 << avgFac << endl;
 	if(remTime < 2){
 		return 0;

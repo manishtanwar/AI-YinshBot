@@ -1,13 +1,15 @@
-// #include<fstream>
+#include<fstream>
 #include <cassert>
 #include "evalFunc.h"
 
 double coeff = 1; // coeff for calculating diffr in base case
-double alpha = 0.04; // learning rate in approx q-learning
+double alpha = 0.01; // learning rate in approx q-learning
 int eps = 80;   // eps for eps-greedy
-vector<double> weight(10,0); //
+// vector<double> weight(1 + 4*(board::k),0); //
+vector<double> weight(21,0); //
+ofstream outFile2("output_eva1.txt");
 
-map<pii,int> scoreTable = { {{3,0},10},{{3,1},9},{{3,2},8},{{2,0},7},{{2,1},6},{{1,0},6},{{2,2},5},{{1,1},5},{{0,0},5},{{0,1},4},{{1,2},4},{{0,2},3},{{2,3},2},{{1,3},1},{{0,3},0},};
+map<pii,int> scoreTable = { {{3,0},10},{{3,1},9},{{3,2},8},{{2,0},7},{{2,1},6},{{1,0},6},{{2,2},5},{{1,1},5},{{0,0},5},{{0,1},4},{{1,2},4},{{0,2},3},{{2,3},2},{{1,3},1},{{0,3},0}};
 vector<pii> direc = {{1,0}, {0,-1}, {-1,-1}, {-1,0}, {0,1}, {1,1}};
 
 vector<int> markers_near_rings(board& B, int player){
@@ -161,16 +163,36 @@ inline bool greedy_eps_explore(){
 
 inline void update_weights(double diffr,board& B, int player){
 	vector<int> f = generate_Fi(B,player);
+	// debug output
+	for(auto z : f){
+		outFile2 << z << ' ';
+	}outFile2<<endl;
 
 	for(int i=0;i<weight.size();i++){
-		weight[i] += alpha * diffr * f[i];
+		weight[i] += alpha * diffr * (double)f[i];
+
+		// debug
+		weight[i] = max(weight[i], -(1e16));
+		weight[i] = min(weight[i], (1e16));
 	}
+	alpha -= (1e-8);
+}
+
+void print_weights(){
+	ofstream outFile1("output_eva.txt");
+	outFile1 << weight.size() << endl;
+	outFile1 << board::k << endl;
+	for(int i=0;i<weight.size();i++)
+		outFile1 << weight[i] << endl;
+	outFile1.close();
 }
 
 double evalFun(board& B, int player){
+	// return Vfunc(B,player);
 	if(GameOver(B)) return Vfunc(B,player);
 
-	pair<board, int> s({B,player}),s1;
+	pair<board, int> s({B,player});
+	board *s1_poi; int s1_ply;
 	// state represents B -> board, Player->chance, third->boolean(removeRing), flip->flip variable for generating neighbours correctly
 	vector< pair<board,int> > neighbours_list = generate_neigh(B,player,0,0);
 	assert(neighbours_list.size() > 0);
@@ -178,46 +200,52 @@ double evalFun(board& B, int player){
 	// determing s1
 	if(greedy_eps_explore()){
 		int random = rand() % neighbours_list.size();
-		s1 = neighbours_list[random];
+		s1_ply = neighbours_list[random].S;
+		s1_poi = new board(neighbours_list[random].F);
 	}
 	else{
 		vector<double> neighbours_VList;
 		for(auto z : neighbours_list) neighbours_VList.pb(Vfunc(z.F,z.S));
-		double optimal_val = (player) ? -INF : INF;
+		double optimal_val = (player) ? INF : -INF;
 		for(int i=0;i < neighbours_VList.size(); i++){
 			auto &nv = neighbours_VList[i];
 			auto &ns = neighbours_list[i];
 
-			if((player==1 && optimal_val < nv) || (player==0 && optimal_val > nv)){
+			if((player==0 && optimal_val < nv) || (player==1 && optimal_val > nv)){
 				optimal_val = nv;
-				s1 = ns;
+				s1_ply = ns.S;
+				s1_poi = new board(ns.F);
 			}
 		}
 	}
 
 	// is s1 terminating
-	if(GameOver(s1.F)){
-		double diffr = Rfunc(s1.F) - Rfunc(s.F) + coeff * Rfunc(s1.F) - Vfunc(s1.F,s1.S);
-		update_weights(diffr,s1.F,s1.S);
+	if(GameOver(*s1_poi)){
+		double diffr = Rfunc(*s1_poi) - Rfunc(s.F) + coeff * Rfunc(*s1_poi) - Vfunc(*s1_poi,s1_ply);
+		update_weights(diffr,*s1_poi,s1_ply);
 	}
 	else{
-		vector< pair<board,int> > neighbours_s1_list = generate_neigh(s1.F,s1.S,0,0);
+		vector< pair<board,int> > neighbours_s1_list = generate_neigh(*s1_poi,s1_ply,0,0);
 		assert(neighbours_s1_list.size() > 0);
 
 		vector<double> neighbours_VList;
 		for(auto z : neighbours_s1_list) neighbours_VList.pb(Vfunc(z.F,z.S));
-		double optimal_val = (s1.S) ? -INF : INF;
+		double optimal_val = (s1_ply) ? -INF : INF;
 		for(int i=0;i < neighbours_VList.size(); i++){
 			auto &nv = neighbours_VList[i];
 			auto &ns = neighbours_s1_list[i];
 
-			if((s1.S==1 && optimal_val < nv) || (s1.S==0 && optimal_val > nv)){
+			if((s1_ply==1 && optimal_val < nv) || (s1_ply==0 && optimal_val > nv)){
 				optimal_val = nv;
 			}
 		}
 
-		double diffr = Rfunc(s1.F) - Rfunc(s.F) + optimal_val - Vfunc(s1.F,s1.S);
-		update_weights(diffr,s1.F,s1.S);
+		double diffr = Rfunc(*s1_poi) - Rfunc(s.F) + optimal_val - Vfunc(*s1_poi,s1_ply);
+		update_weights(diffr,*s1_poi,s1_ply);
 	}
+	print_weights();
+
+	delete s1_poi;
+
 	return Vfunc(B,player);
 }
