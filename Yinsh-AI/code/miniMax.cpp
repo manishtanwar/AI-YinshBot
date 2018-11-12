@@ -63,7 +63,7 @@ int determineDepth(board& B){
 			return 4;
 		}
 		else{
-			if(avgFac < 90) return 5;
+			if(avgFac < 88) return 5;
 			return 4;
 		}
 	}
@@ -80,7 +80,7 @@ int determineDepth(board& B){
 			if(avgFac < 70) return 5;
 			return 4;
 		}
-		else if(remTime < 70){
+		else if(remTime < 100){
 			if(avgFac < 80) return 5;
 			return 4;
 		}
