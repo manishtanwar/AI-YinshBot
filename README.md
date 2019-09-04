@@ -1,4 +1,15 @@
-# Yinsh
+# AI bot for the game of Yinsh
+
+This repo contains the code for an AI bot, for playing a game of Yinsh. Yinsh is an abstract strategy board two-player game.
+
+## Algorithm
+It uses adversarial search algorithm Mini-max with Alpha-Beta pruning.
+
+
+# -----------------------------------------------------------------------
+
+README for Yinsh game simulator is as follows:
+
 Simulator supporting smart agents and a user interface for Yinsh, an abstract strategy board game.
 
 ## Rules
